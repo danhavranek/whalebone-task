@@ -1,10 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
+	"time"
+
+	"github.com/danhavranek/whalebone-task/models"
+	"github.com/google/uuid"
 )
 
 func savePerson(w http.ResponseWriter, req *http.Request) {
@@ -22,7 +26,14 @@ func getPerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	fmt.Fprintf(w, "%s\n", strings.Trim(req.URL.Path, "/"))
+	// fmt.Fprintf(w, "%s\n", strings.Trim(req.URL.Path, "/"))
+	// TODO: keep original offset in timestamp
+	personMock := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "test@example.com", DateOfBirth: time.Now().UTC().Format(time.RFC3339)}
+	data, err := json.Marshal(personMock)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintf(w, "%s\n", string(data))
 }
 
 func initializeRoutes() {
