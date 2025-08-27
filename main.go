@@ -10,7 +10,8 @@ import (
 func main() {
 	routes.Init()
 
-	if err := database.Init(); err != nil {
+	err := database.Init()
+	if err != nil {
 		panic(err)
 	}
 
