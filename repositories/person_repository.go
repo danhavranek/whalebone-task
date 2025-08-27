@@ -6,12 +6,13 @@ import (
 )
 
 func CreatePerson(person *models.Person) error {
+	// TODO: keep original offset in timestamp
 	return database.DB.Create(person).Error
 }
 
-func GetPersonById(id string) (*models.Person, error) {
+func GetPersonById(externalId string) (*models.Person, error) {
 	var person models.Person
-	err := database.DB.First(&person, id).Error
+	err := database.DB.Where("external_id = ?", externalId).First(&person).Error
 	if err != nil {
 		return nil, err
 	}
