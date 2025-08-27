@@ -18,14 +18,17 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 	var newPerson models.Person
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&newPerson)
+
 	if err != nil {
-		panic(err)
+		http.Error(w, "unable to decode json data", http.StatusInternalServerError)
+		return
 	}
 	err = repositories.CreatePerson(&newPerson)
 	if err != nil {
-		panic(err)
+		http.Error(w, "unable to store date into db", http.StatusInternalServerError)
+		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func getPerson(w http.ResponseWriter, req *http.Request) {
@@ -35,12 +38,13 @@ func getPerson(w http.ResponseWriter, req *http.Request) {
 	}
 	person, err := repositories.GetPersonById(strings.Trim(req.URL.Path, "/"))
 	if err != nil {
-		// TODO: handle panic branches as server errors
-		panic(err)
+		http.Error(w, "no user with given id found", http.StatusNotFound)
+		return
 	}
 	jsonData, err := json.Marshal(person)
 	if err != nil {
-		panic(err)
+		http.Error(w, "error searializing data", http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s\n", string(jsonData))
