@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	"strings"
 
 	"github.com/danhavranek/whalebone-task/models"
-	"github.com/google/uuid"
+	"github.com/danhavranek/whalebone-task/repositories"
 )
 
 func savePerson(w http.ResponseWriter, req *http.Request) {
@@ -21,7 +21,10 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	// TODO: save data into DB
+	err = repositories.CreatePerson(&newPerson)
+	if err != nil {
+		panic(err)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -30,16 +33,17 @@ func getPerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	// fmt.Fprintf(w, "%s\n", strings.Trim(req.URL.Path, "/"))
-	// TODO: keep original offset in timestamp
-	personMock := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "test@example.com", DateOfBirth: time.Now().UTC().Format(time.RFC3339)}
-	data, err := json.Marshal(personMock)
+	person, err := repositories.GetPersonById(strings.Trim(req.URL.Path, "/"))
 	if err != nil {
 		// TODO: handle panic branches as server errors
 		panic(err)
 	}
+	jsonData, err := json.Marshal(person)
+	if err != nil {
+		panic(err)
+	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s\n", string(data))
+	fmt.Fprintf(w, "%s\n", string(jsonData))
 }
 
 func Init() {
