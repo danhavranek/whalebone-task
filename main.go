@@ -6,6 +6,10 @@ import (
 )
 
 func hello(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	fmt.Fprintf(w, "hello\n")
 }
 
