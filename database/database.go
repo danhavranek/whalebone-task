@@ -11,7 +11,9 @@ var DB *gorm.DB
 const dbFileName string = "test.db"
 
 func Init() error {
-	DB, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{})
+	var err error
+
+	DB, err = gorm.Open(sqlite.Open(dbFileName), &gorm.Config{})
 	if err != nil {
 		return err
 	}
