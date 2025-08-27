@@ -1,2 +1,21 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build directory
+bin/
+
+# Test binary, built with `go test -c`
+*.test
+
+# SQLite DB
 *.db
 
+# env file
+.env
+
+# Editor/IDE
+.vscode/
