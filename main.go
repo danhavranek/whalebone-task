@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/danhavranek/whalebone-task/database"
 	"github.com/danhavranek/whalebone-task/models"
 	"github.com/google/uuid"
 )
@@ -49,6 +50,10 @@ func initializeRoutes() {
 
 func main() {
 	initializeRoutes()
+
+	if err := database.Init(); err != nil {
+		panic(err)
+	}
 
 	http.ListenAndServe(":8090", nil)
 }
