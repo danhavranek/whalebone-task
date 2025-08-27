@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"time"
 
@@ -16,9 +15,14 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	data, _ := io.ReadAll(req.Body)
-	fmt.Fprintf(w, "%s\n", data)
-	req.Body.Close()
+	var newPerson models.Person
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(&newPerson)
+	if err != nil {
+		panic(err)
+	}
+	// TODO: save data into DB
+	w.WriteHeader(http.StatusOK)
 }
 
 func getPerson(w http.ResponseWriter, req *http.Request) {
@@ -31,8 +35,10 @@ func getPerson(w http.ResponseWriter, req *http.Request) {
 	personMock := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "test@example.com", DateOfBirth: time.Now().UTC().Format(time.RFC3339)}
 	data, err := json.Marshal(personMock)
 	if err != nil {
+		// TODO: handle panic branches as server errors
 		panic(err)
 	}
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s\n", string(data))
 }
 
