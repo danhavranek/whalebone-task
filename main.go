@@ -2,16 +2,19 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
+func savePerson(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	fmt.Fprintf(w, "hello\n")
+	data, _ := io.ReadAll(req.Body)
+	fmt.Fprintf(w, "%s\n", data)
+	req.Body.Close()
 }
 
 func getPerson(w http.ResponseWriter, req *http.Request) {
@@ -23,7 +26,7 @@ func getPerson(w http.ResponseWriter, req *http.Request) {
 }
 
 func initializeRoutes() {
-	http.HandleFunc("/hello", hello)
+	http.HandleFunc("/save", savePerson)
 	http.HandleFunc("/", getPerson)
 }
 
