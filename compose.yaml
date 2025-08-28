@@ -8,14 +8,6 @@ services:
     volumes:
       - db_data:/app/data
 
-# Example Postgres extension
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#   db:
-#     image: postgres
-#     ...
-
 volumes:
   db_data:
 
