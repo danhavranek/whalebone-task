@@ -43,6 +43,13 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Check if person with given id already exists
+	_, err = repositories.GetPersonById(newPerson.ExternalId)
+	if err == nil {
+		http.Error(w, "user with given id already exists", http.StatusConflict)
+		return
+	}
+
 	err = repositories.CreatePerson(&newPerson)
 	if err != nil {
 		http.Error(w, "unable to store data into db", http.StatusInternalServerError)
