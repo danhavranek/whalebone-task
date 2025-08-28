@@ -82,6 +82,17 @@ func TestGetPerson(t *testing.T) {
 	}
 }
 
+func TestGetPersonMethodNotAllowed(t *testing.T) {
+	// Arrange
+	externalId := uuid.NewString()
+	// Act
+	resp, _ := http.Post(httpAddress+externalId, "text/plain", nil)
+	// Assert
+	if resp.StatusCode != http.StatusMethodNotAllowed {
+		t.Fatalf("expected 405, got %d", resp.StatusCode)
+	}
+}
+
 func setup() {
 	// Service start
 	serverProcessCmd = exec.Command(executablePath)
