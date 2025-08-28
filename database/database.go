@@ -11,16 +11,16 @@ import (
 
 var DB *gorm.DB
 
-const dbPath string = "app/data/app.db"
+const DbPath string = "app/data/app.db"
 
 func Init() error {
 	// Create DB path if not exists
-	err := os.MkdirAll(filepath.Dir(dbPath), 0755)
+	err := os.MkdirAll(filepath.Dir(DbPath), 0755)
 	if err != nil {
 		return err
 	}
 
-	DB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	DB, err = gorm.Open(sqlite.Open(DbPath), &gorm.Config{})
 	if err != nil {
 		return err
 	}
