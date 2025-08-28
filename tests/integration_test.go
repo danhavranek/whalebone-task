@@ -34,6 +34,36 @@ func TestGetNonExistentPerson(t *testing.T) {
 	}
 }
 
+func TestGetPerson(t *testing.T) {
+	// Arrange
+	personToBeRecieved := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: "2020-01-01T12:12:34+00:00"}
+	err := DB.Create(personToBeRecieved).Error
+	if err != nil {
+		panic(err)
+	}
+	// Act
+	var resp *http.Response
+	resp, err = http.Get(httpAddress + personToBeRecieved.ExternalId)
+	// Assert
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestGetPersonMethodNotAllowed(t *testing.T) {
+	// Arrange
+	externalId := uuid.NewString()
+	// Act
+	resp, _ := http.Post(httpAddress+externalId, "text/plain", nil)
+	// Assert
+	if resp.StatusCode != http.StatusMethodNotAllowed {
+		t.Fatalf("expected 405, got %d", resp.StatusCode)
+	}
+}
+
 func TestCreatePerson(t *testing.T) {
 	// Arrange
 	externalId := uuid.NewString()
@@ -77,36 +107,6 @@ func TestCreatePersonBadRequest(t *testing.T) {
 	// Assert
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Fatalf("expected 404, got %d", resp.StatusCode)
-	}
-}
-
-func TestGetPerson(t *testing.T) {
-	// Arrange
-	personToBeRecieved := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: "2020-01-01T12:12:34+00:00"}
-	err := DB.Create(personToBeRecieved).Error
-	if err != nil {
-		panic(err)
-	}
-	// Act
-	var resp *http.Response
-	resp, err = http.Get(httpAddress + personToBeRecieved.ExternalId)
-	// Assert
-	if err != nil {
-		t.Fatal(err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("expected 200, got %d", resp.StatusCode)
-	}
-}
-
-func TestGetPersonMethodNotAllowed(t *testing.T) {
-	// Arrange
-	externalId := uuid.NewString()
-	// Act
-	resp, _ := http.Post(httpAddress+externalId, "text/plain", nil)
-	// Assert
-	if resp.StatusCode != http.StatusMethodNotAllowed {
-		t.Fatalf("expected 405, got %d", resp.StatusCode)
 	}
 }
 
