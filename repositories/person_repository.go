@@ -6,7 +6,6 @@ import (
 )
 
 func CreatePerson(person *models.Person) error {
-	// TODO: keep original offset in timestamp
 	return database.DB.Create(person).Error
 }
 

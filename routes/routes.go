@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"strings"
+	"time"
 
 	"github.com/danhavranek/whalebone-task/models"
 	"github.com/danhavranek/whalebone-task/repositories"
+	"github.com/google/uuid"
 )
 
 func savePerson(w http.ResponseWriter, req *http.Request) {
@@ -23,6 +26,23 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "unable to decode json data", http.StatusBadRequest)
 		return
 	}
+	// Values validation
+	_, err = uuid.Parse(newPerson.ExternalId)
+	if err != nil {
+		http.Error(w, "invalid uuid", http.StatusBadRequest)
+		return
+	}
+	_, err = mail.ParseAddress(newPerson.Email)
+	if err != nil {
+		http.Error(w, "invalid email", http.StatusBadRequest)
+		return
+	}
+	_, err = time.Parse(time.RFC3339, newPerson.DateOfBirth)
+	if err != nil {
+		http.Error(w, "invalid date format", http.StatusBadRequest)
+		return
+	}
+
 	err = repositories.CreatePerson(&newPerson)
 	if err != nil {
 		http.Error(w, "unable to store data into db", http.StatusInternalServerError)
