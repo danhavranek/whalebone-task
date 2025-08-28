@@ -1,6 +1,7 @@
 APP_NAME="whalebone-task"
 
 run:
+	mkdir -p app/data
 	go run . 
 
 build:
@@ -10,4 +11,4 @@ build-image:
 	docker build --tag ${APP_NAME} .
 
 clean:
-	rm -fr bin
+	rm -fr bin app

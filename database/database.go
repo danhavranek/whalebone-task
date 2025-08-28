@@ -8,12 +8,12 @@ import (
 
 var DB *gorm.DB
 
-const dbFileName string = "test.db"
+const dbPath string = "app/data/app.db"
 
 func Init() error {
 	var err error
 
-	DB, err = gorm.Open(sqlite.Open(dbFileName), &gorm.Config{})
+	DB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		return err
 	}

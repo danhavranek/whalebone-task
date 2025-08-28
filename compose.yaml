@@ -5,7 +5,10 @@ services:
       target: build-release-stage
     ports:
       - 8090:8090
-
+    volumes:
+      - db_data:/app/data
+    environment:
+      - DATABASE_PATH=/app/data/app.db
 
 # Example Postgres extension
 #     depends_on:
@@ -29,9 +32,10 @@ services:
 #       interval: 10s
 #       timeout: 5s
 #       retries: 5
-# volumes:
-#   db-data:
 # secrets:
 #   db-password:
 #     file: db/password.txt
+
+volumes:
+  db_data:
 

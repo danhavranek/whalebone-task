@@ -33,6 +33,8 @@ FROM gcr.io/distroless/base-debian12 AS build-release-stage
 WORKDIR /
 # Copy binary
 COPY --from=build-stage /whalebone-task /whalebone-task
+# Create DB volume
+VOLUME ["/app/data"]
 
 EXPOSE 8090
 ENTRYPOINT ["/whalebone-task"]
