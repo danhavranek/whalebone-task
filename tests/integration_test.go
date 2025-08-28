@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -36,12 +36,13 @@ func TestGetNonExistentPerson(t *testing.T) {
 
 func TestCreatePerson(t *testing.T) {
 	// Arrange
-	personToBeStored := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: "2020-01-01T12:12:34+00:00"}
-	jsonData, err := json.Marshal(personToBeStored)
-	if err != nil {
-		t.Fatal(err)
-	}
-	reader := strings.NewReader(string(jsonData))
+	externalId := uuid.NewString()
+	name := "Test Person"
+	email := "testperson@example.com"
+	dateOfBirth := "2020-01-01T12:12:34+00:00"
+
+	requestJson := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"}`, externalId, name, email, dateOfBirth)
+	reader := strings.NewReader(requestJson)
 	// Act
 	resp, err := http.Post(httpAddress+"save", "application/json", reader)
 	// Assert
@@ -53,14 +54,13 @@ func TestCreatePerson(t *testing.T) {
 	}
 	// Check db
 	var storedPerson models.Person
-	err = DB.Where("external_id = ?", personToBeStored.ExternalId).First(&storedPerson).Error
+	err = DB.Where("external_id = ?", externalId).First(&storedPerson).Error
 	if err != nil {
 		t.Fatal(err)
 	}
-	if personToBeStored.Name != storedPerson.Name || personToBeStored.Email != storedPerson.Email || personToBeStored.DateOfBirth != storedPerson.DateOfBirth {
+	if name != storedPerson.Name || email != storedPerson.Email || dateOfBirth != storedPerson.DateOfBirth {
 		t.Fatal("person stored badly")
 	}
-	// TODO: compare json, not model
 }
 
 func TestGetPerson(t *testing.T) {
