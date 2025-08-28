@@ -60,6 +60,26 @@ func TestCreatePerson(t *testing.T) {
 	if personToBeStored.Name != storedPerson.Name || personToBeStored.Email != storedPerson.Email || personToBeStored.DateOfBirth != storedPerson.DateOfBirth {
 		t.Fatal("person stored badly")
 	}
+	// TODO: compare json, not model
+}
+
+func TestGetPerson(t *testing.T) {
+	// Arrange
+	personToBeRecieved := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: "2020-01-01T12:12:34+00:00"}
+	err := DB.Create(personToBeRecieved).Error
+	if err != nil {
+		panic(err)
+	}
+	// Act
+	var resp *http.Response
+	resp, err = http.Get(httpAddress + personToBeRecieved.ExternalId)
+	// Assert
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", resp.StatusCode)
+	}
 }
 
 func setup() {
