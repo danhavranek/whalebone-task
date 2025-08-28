@@ -20,7 +20,7 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 	err := decoder.Decode(&newPerson)
 
 	if err != nil {
-		http.Error(w, "unable to decode json data", http.StatusInternalServerError)
+		http.Error(w, "unable to decode json data", http.StatusBadRequest)
 		return
 	}
 	err = repositories.CreatePerson(&newPerson)
