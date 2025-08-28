@@ -173,7 +173,6 @@ func setup() {
 	serverProcessCmd = exec.Command(executablePath)
 	serverProcessCmd.Stdout = os.Stdout
 	serverProcessCmd.Stderr = os.Stderr
-	// TODO: setup tmp env vars
 
 	err := serverProcessCmd.Start()
 	if err != nil {
