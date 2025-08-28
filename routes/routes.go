@@ -25,7 +25,7 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 	}
 	err = repositories.CreatePerson(&newPerson)
 	if err != nil {
-		http.Error(w, "unable to store date into db", http.StatusInternalServerError)
+		http.Error(w, "unable to store data into db", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
