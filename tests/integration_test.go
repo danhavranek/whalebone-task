@@ -144,6 +144,30 @@ func TestCreatePersonInvalidValues(t *testing.T) {
 	}
 }
 
+func TestCreatePersonAlreadyExists(t *testing.T) {
+	// Arrange
+	externalId := uuid.NewString()
+	name1 := "Test Person"
+	email1 := "testperson@example.com"
+	dateOfBirth1 := "2020-01-01T12:12:34+00:00"
+	name2 := "Test Person"
+	email2 := "testperson@example.com"
+	dateOfBirth2 := "2020-01-01T12:12:34+00:00"
+
+	requestJson1 := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"}`, externalId, name1, email1, dateOfBirth1)
+	reader := strings.NewReader(requestJson1)
+	http.Post(httpAddress+"save", "application/json", reader)
+
+	requestJson2 := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"}`, externalId, name2, email2, dateOfBirth2)
+	reader = strings.NewReader(requestJson2)
+	// Act
+	resp, _ := http.Post(httpAddress+"save", "application/json", reader)
+	// Assert
+	if resp.StatusCode != http.StatusConflict {
+		t.Fatalf("expected 409, got %d", resp.StatusCode)
+	}
+}
+
 func setup() {
 	// Service start
 	serverProcessCmd = exec.Command(executablePath)
