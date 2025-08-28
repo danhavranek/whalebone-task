@@ -1,8 +1,10 @@
 APP_NAME="whalebone-task"
 
 run:
-	mkdir -p app/data
 	go run . 
+
+test:
+	go test ./tests
 
 build:
 	go build -o bin/${APP_NAME} . 
