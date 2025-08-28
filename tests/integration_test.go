@@ -93,20 +93,54 @@ func TestCreatePerson(t *testing.T) {
 	}
 }
 
-func TestCreatePersonBadRequest(t *testing.T) {
+func TestCreatePersonInvalidJson(t *testing.T) {
 	// Arrange
 	externalId := uuid.NewString()
 	name := "Test Person"
 	email := "testperson@example.com"
 	dateOfBirth := "2020-01-01T12:12:34+00:00"
 
-	requestJson := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"`, externalId, name, email, dateOfBirth)
-	reader := strings.NewReader(requestJson)
+	// JSON missing closing bracket
+	invalidRequestJson := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"`, externalId, name, email, dateOfBirth)
+	reader := strings.NewReader(invalidRequestJson)
 	// Act
 	resp, _ := http.Post(httpAddress+"save", "application/json", reader)
 	// Assert
 	if resp.StatusCode != http.StatusBadRequest {
-		t.Fatalf("expected 404, got %d", resp.StatusCode)
+		t.Fatalf("expected 400, got %d", resp.StatusCode)
+	}
+}
+
+func TestCreatePersonInvalidValues(t *testing.T) {
+	// Arrange
+	externalId := uuid.NewString()
+	name := "Test Person"
+	email := "testperson@example.com"
+	dateOfBirth := "2020-01-01T12:12:34+00:00"
+
+	invalidUuid := "invalid_uuid"
+	invalidEmail := "example.com"
+	invalidRFC3339Date := "2020-01-01T12:12"
+
+	invalidRequestJson1 := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"`, invalidUuid, name, email, dateOfBirth)
+	invalidRequestJson2 := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"`, externalId, name, invalidEmail, dateOfBirth)
+	invalidRequestJson3 := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"`, externalId, name, email, invalidRFC3339Date)
+	reader1 := strings.NewReader(invalidRequestJson1)
+	reader2 := strings.NewReader(invalidRequestJson2)
+	reader3 := strings.NewReader(invalidRequestJson3)
+	// Act
+	resp1, _ := http.Post(httpAddress+"save", "application/json", reader1)
+	resp2, _ := http.Post(httpAddress+"save", "application/json", reader2)
+	resp3, _ := http.Post(httpAddress+"save", "application/json", reader3)
+	// Assert
+	if resp1.StatusCode != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", resp1.StatusCode)
+	}
+	if resp2.StatusCode != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", resp2.StatusCode)
+	}
+	if resp3.StatusCode != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", resp3.StatusCode)
 	}
 }
 
