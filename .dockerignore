@@ -1,0 +1,19 @@
+**/.dockerignore
+
+**/.env
+
+**/.git
+**/.gitignore
+
+**/.vscode
+
+**/docker-compose*
+**/compose.y*ml
+**/Dockerfile*
+
+# Files from local run
+**/bin
+**/*.db
+
+LICENSE
+README.md
