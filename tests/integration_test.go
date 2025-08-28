@@ -63,6 +63,23 @@ func TestCreatePerson(t *testing.T) {
 	}
 }
 
+func TestCreatePersonBadRequest(t *testing.T) {
+	// Arrange
+	externalId := uuid.NewString()
+	name := "Test Person"
+	email := "testperson@example.com"
+	dateOfBirth := "2020-01-01T12:12:34+00:00"
+
+	requestJson := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"`, externalId, name, email, dateOfBirth)
+	reader := strings.NewReader(requestJson)
+	// Act
+	resp, _ := http.Post(httpAddress+"save", "application/json", reader)
+	// Assert
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("expected 404, got %d", resp.StatusCode)
+	}
+}
+
 func TestGetPerson(t *testing.T) {
 	// Arrange
 	personToBeRecieved := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: "2020-01-01T12:12:34+00:00"}
