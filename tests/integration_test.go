@@ -24,7 +24,8 @@ var DB *gorm.DB
 
 func TestGetNonExistentPerson(t *testing.T) {
 	// Act
-	resp, err := http.Get(httpAddress + "test")
+	externalId := uuid.NewString()
+	resp, err := http.Get(httpAddress + externalId)
 	// Assert
 	if err != nil {
 		t.Fatal(err)
@@ -36,14 +37,14 @@ func TestGetNonExistentPerson(t *testing.T) {
 
 func TestGetPerson(t *testing.T) {
 	// Arrange
-	personToBeRecieved := models.Person{ExternalId: uuid.NewString(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: "2020-01-01T12:12:34+00:00"}
+	personToBeRecieved := models.Person{ExternalId: uuid.New(), Name: "Test Person", Email: "testperson@example.com", DateOfBirth: models.CustomRFC3339Time{time.Now()}}
 	err := DB.Create(personToBeRecieved).Error
 	if err != nil {
 		panic(err)
 	}
 	// Act
 	var resp *http.Response
-	resp, err = http.Get(httpAddress + personToBeRecieved.ExternalId)
+	resp, err = http.Get(httpAddress + personToBeRecieved.ExternalId.String())
 	// Assert
 	if err != nil {
 		t.Fatal(err)
@@ -66,12 +67,12 @@ func TestGetPersonMethodNotAllowed(t *testing.T) {
 
 func TestCreatePerson(t *testing.T) {
 	// Arrange
-	externalId := uuid.NewString()
+	externalId := uuid.New()
 	name := "Test Person"
 	email := "testperson@example.com"
 	dateOfBirth := "2020-01-01T12:12:34+00:00"
 
-	requestJson := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"}`, externalId, name, email, dateOfBirth)
+	requestJson := fmt.Sprintf(`{"external_id":"%s","name":"%s","email":"%s","date_of_birth":"%s"}`, externalId.String(), name, email, dateOfBirth)
 	reader := strings.NewReader(requestJson)
 	// Act
 	resp, err := http.Post(httpAddress+"save", "application/json", reader)
@@ -88,7 +89,12 @@ func TestCreatePerson(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if name != storedPerson.Name || email != storedPerson.Email || dateOfBirth != storedPerson.DateOfBirth {
+	var dateOfBirthTime time.Time
+	dateOfBirthTime, err = time.Parse(time.RFC3339, dateOfBirth)
+	if err != nil {
+		panic(err)
+	}
+	if name != storedPerson.Name || email != storedPerson.Email || !dateOfBirthTime.Equal(storedPerson.DateOfBirth.Std()) {
 		t.Fatal("person stored badly")
 	}
 }

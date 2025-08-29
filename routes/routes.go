@@ -18,7 +18,7 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	var newPerson models.Person
+	var newPerson models.PersonDTO
 	decoder := json.NewDecoder(req.Body)
 	err := decoder.Decode(&newPerson)
 
@@ -27,7 +27,8 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// Values validation
-	_, err = uuid.Parse(newPerson.ExternalId)
+	var newPersonUuid uuid.UUID
+	newPersonUuid, err = uuid.Parse(newPerson.ExternalId)
 	if err != nil {
 		http.Error(w, "invalid uuid", http.StatusBadRequest)
 		return
@@ -37,20 +38,24 @@ func savePerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "invalid email", http.StatusBadRequest)
 		return
 	}
-	_, err = time.Parse(time.RFC3339, newPerson.DateOfBirth)
+	var newPersonDateOfBirth time.Time
+	newPersonDateOfBirth, err = time.Parse(time.RFC3339, newPerson.DateOfBirth)
 	if err != nil {
 		http.Error(w, "invalid date format", http.StatusBadRequest)
 		return
 	}
 
+	// Create Person from PersonDTO
+	personToBeStored := models.Person{ExternalId: newPersonUuid, Name: newPerson.Name, Email: newPerson.Email, DateOfBirth: models.CustomRFC3339Time{newPersonDateOfBirth}}
+
 	// Check if person with given id already exists
-	_, err = repositories.GetPersonById(newPerson.ExternalId)
+	_, err = repositories.GetPersonById(personToBeStored.ExternalId)
 	if err == nil {
 		http.Error(w, "user with given id already exists", http.StatusConflict)
 		return
 	}
 
-	err = repositories.CreatePerson(&newPerson)
+	err = repositories.CreatePerson(&personToBeStored)
 	if err != nil {
 		http.Error(w, "unable to store data into db", http.StatusInternalServerError)
 		return
@@ -63,7 +68,14 @@ func getPerson(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	person, err := repositories.GetPersonById(strings.Trim(req.URL.Path, "/"))
+	// Values validation
+	parsedUuid, err := uuid.Parse(strings.Trim(req.URL.Path, "/"))
+	if err != nil {
+		http.Error(w, "invalid uuid", http.StatusBadRequest)
+		return
+	}
+
+	person, err := repositories.GetPersonById(parsedUuid)
 	if err != nil {
 		http.Error(w, "no user with given id found", http.StatusNotFound)
 		return
